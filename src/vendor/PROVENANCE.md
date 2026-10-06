@@ -12,6 +12,11 @@ from one import path, from a MIT-licensed project so that this tool has no depen
 **Source:** [dsh-system1-observer](https://github.com/johnlam1968/dsh-system1-observer) —
 MIT License, Copyright (c) 2026 John Lam.
 
+**Licence compliance.** The upstream work is MIT and its copyright holder is the same as this
+repository's, so the MIT notice and permission text at the root [`LICENSE`](../../LICENSE) covers
+these files as required — there is no second notice to carry. This file records the provenance, which
+MIT does not require but a reader does: without it, three files here would look original.
+
 **The only change** is the import path: `'../is-record.js'` → `'./is-record.mjs'` in
 `questions.mjs` and `narrow.mjs`. No logic was altered.
 
