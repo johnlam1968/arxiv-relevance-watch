@@ -1,0 +1,26 @@
+{
+  "name": "monodromy defects in quantum field theory",
+  "profile": "- monodromy (twist) line defects in quantum field theory\n- the scaling function C(v) for a defect's Casimir energy\n- the gauging procedure that makes a defect dynamical\n- topological quantization and Chern class conditions\n- gauge fields versus background fields\n- conformal and line defects, and defect CFT",
+  "_note": "`profile` is what the judge is told your subject is, and it is used when you run without --text. Write it yourself, in your own words, and keep it narrow: a profile that says 'quantum field theory' makes every hep-th paper relevant and the tool useless. Run with --text <your-notes> and the profile is instead computed from which of these lexicon entries your document actually uses.",
+
+  "topics": [
+    { "id": "monodromy_defect",         "label": "monodromy defect",           "patterns": ["monodromy defect", "monodromy line", "monodromy"],                                        "query": "\"monodromy defect\"",        "weight": 10 },
+    { "id": "twist_defect",             "label": "twist defect",               "patterns": ["twist defect", "twist field", "twisted defect"],                                           "query": "\"twist defect\"",            "weight": 9 },
+    { "id": "casimir_energy",           "label": "Casimir energy",             "patterns": ["casimir"],                                                                                 "query": "\"casimir energy\"",          "weight": 9 },
+    { "id": "conformal_defect",         "label": "conformal defect",           "patterns": ["conformal defect", "defect conformal", "defect cft", "3d conformal"],                      "query": "\"conformal defect\"",        "weight": 8 },
+    { "id": "line_defect",              "label": "line defect",                "patterns": ["line defect", "line operator", "defect line"],                                             "query": "\"line defect\"",             "weight": 8 },
+    { "id": "topological_quantization", "label": "topological quantization",   "patterns": ["topological quantization", "topological quantisation", "quantization condition", "quantisation condition"], "query": "\"topological quantization\"", "weight": 8 },
+    { "id": "gauging",                  "label": "gauging procedure",          "patterns": ["gauging", "gauged", "gauge the"],                                                         "query": "\"gauging\"",                 "weight": 7 },
+    { "id": "chern_class",              "label": "Chern class",                "patterns": ["chern"],                                                                                   "query": "\"chern class\"",             "weight": 7 },
+    { "id": "scaling_function",         "label": "scaling function C(v)",      "patterns": ["scaling function", "c(v)"],                                                                "query": "\"scaling function\"",        "weight": 7 },
+    { "id": "entanglement_entropy",     "label": "entanglement entropy",       "patterns": ["entanglement entropy"],                                                                    "query": "\"entanglement entropy\"",    "weight": 7 },
+    { "id": "wilson_line",              "label": "Wilson line",                "patterns": ["wilson line", "wilson loop"],                                                              "query": "\"wilson line\"",             "weight": 6 },
+    { "id": "complex_scalar",           "label": "complex scalar field",       "patterns": ["complex scalar", "scalar field"],                                                          "query": "\"complex scalar field\"",    "weight": 6 },
+    { "id": "background_field",         "label": "gauge vs background field",  "patterns": ["background field", "background gauge", "dynamical gauge"],                                  "query": "\"background field\"",        "weight": 5 },
+    { "id": "theta_angle",              "label": "theta angle",                "patterns": ["theta angle", "vacuum angle", "theta term"],                                               "query": "\"theta angle\"",             "weight": 5 },
+    { "id": "anomaly",                  "label": "anomaly",                    "patterns": ["anomal"],                                                                                  "query": "\"anomaly\"",                 "weight": 5 },
+    { "id": "defect_renormalization",   "label": "defect renormalization",     "patterns": ["renormaliz"],                                                                              "query": "\"defect renormalization\"",  "weight": 5 },
+    { "id": "topological_defect_solid", "label": "defects in condensed matter", "patterns": ["condensed matter", "topological order", "anyons"],                                         "query": "\"topological defect\"",      "weight": 4 },
+    { "id": "modular",                  "label": "modular / braiding",         "patterns": ["modular", "braiding"],                                                                     "query": "\"modular\"",                 "weight": 3 }
+  ]
+}

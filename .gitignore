@@ -1,0 +1,22 @@
+# Nothing here belongs in git.
+
+# Runtime state: which papers this machine has already seen.
+state/
+
+# Reports are outputs, not sources. Keep the examples/ copies if you want them in the repo.
+reports/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Secrets: never commit a key. This tool reads them from the environment only.
+.env
+.env.*
+*.key

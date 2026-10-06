@@ -1,0 +1,43 @@
+{
+  "name": "arxiv-relevance-watch",
+  "version": "0.1.0",
+  "description": "Watch arXiv for the papers that matter to one specific research topic, and rank them with a decision model. No language model is called.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "arxiv-watch": "./src/cli.mjs"
+  },
+  "exports": {
+    ".": "./src/cli.mjs",
+    "./arxiv": "./src/arxiv.mjs",
+    "./topics": "./src/topics.mjs",
+    "./state": "./src/state.mjs",
+    "./systemone": "./src/systemone.mjs"
+  },
+  "files": [
+    "src",
+    "config",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node src/cli.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "keywords": [
+    "arxiv",
+    "research",
+    "literature-review",
+    "decision-model",
+    "no-llm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnlam1968/arxiv-relevance-watch.git"
+  },
+  "dependencies": {}
+}

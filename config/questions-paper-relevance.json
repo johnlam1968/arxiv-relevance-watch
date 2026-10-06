@@ -1,0 +1,41 @@
+[
+  {
+    "id": "paper_on_topic",
+    "type": "noul",
+    "instructions": "Is PAPER about monodromy (twist) defects, or the closely related theory of line and conformal defects in quantum field theory?"
+  },
+  {
+    "id": "paper_topic_overlap",
+    "type": "score",
+    "instructions": "How much of PAPER's actual subject matter overlaps the TOPIC PROFILE, independent of whether PAPER agrees with it?",
+    "levels": [
+      "none: a different subject that merely shares words",
+      "peripheral: the same broad field, a different problem",
+      "adjacent: shares concepts or machinery, not the problem",
+      "relevant: addresses the same class of problem",
+      "direct: addresses the very topics and problems described in the profile"
+    ]
+  },
+  {
+    "id": "paper_answers_open_problem",
+    "type": "noul",
+    "instructions": "Does PAPER help with the open problems of this subject -- computing the scaling function C(v) of the Casimir energy for a monodromy line defect, the gauging procedure that makes the defect dynamical, or the topological quantization condition?"
+  },
+  {
+    "id": "paper_worth_reading",
+    "type": "noul",
+    "instructions": "Would a researcher working on this subject need to read PAPER?"
+  },
+  {
+    "id": "paper_relation",
+    "type": "choice",
+    "instructions": "What is PAPER's relation to this subject?",
+    "options": [
+      { "label": "foundational_background", "criterion": "standard textbook material the subject builds on" },
+      { "label": "same_problem_advanced",   "criterion": "the same problem treated further or more rigorously" },
+      { "label": "different_setting",       "criterion": "a different setting or dimension whose methods transfer" },
+      { "label": "unrelated_word_overlap",  "criterion": "unrelated work that happens to share terminology" },
+      { "label": "cannot_tell",             "criterion": "the title and abstract do not show enough to decide", "abstain": true }
+    ]
+  }
+]
