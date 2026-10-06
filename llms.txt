@@ -1,0 +1,32 @@
+# arxiv-relevance-watch
+
+> Watches arXiv for papers relevant to one narrow research topic, then reads the shortlist in full
+> text against the project's own open items. No chat or completion model is called; judgement comes
+> from a System One / Jev-style decision model answering typed questions. Two commands: `arxiv-watch`
+> screens abstracts, `arxiv-read` reads full texts. Node 22.5+, no dependencies.
+
+## Start here
+
+- [AGENTS.md](https://github.com/johnlam1968/arxiv-relevance-watch/blob/main/AGENTS.md): what this does, what it cannot do, and how to help a human who cannot run it. Read this first if you are an assistant.
+- [README.md](https://github.com/johnlam1968/arxiv-relevance-watch/blob/main/README.md): the two workflows, install, honest limitations.
+
+## Configuration
+
+- [docs/config-reference.md](https://github.com/johnlam1968/arxiv-relevance-watch/blob/main/docs/config-reference.md): every config file in prose, with the rules the validators enforce. Sufficient to author a valid config without running anything.
+- [config/topics-monodromy-defects.json](https://github.com/johnlam1968/arxiv-relevance-watch/blob/main/config/topics-monodromy-defects.json): the screening axis source (lexicon + queries).
+- [config/questions-paper-relevance.json](https://github.com/johnlam1968/arxiv-relevance-watch/blob/main/config/questions-paper-relevance.json): the screening question set.
+- [config/project-monodromy-defects.json](https://github.com/johnlam1968/arxiv-relevance-watch/blob/main/config/project-monodromy-defects.json): the reading axis source (open items).
+
+## Question sets
+
+- [docs/authoring-question-sets.md](https://github.com/johnlam1968/arxiv-relevance-watch/blob/main/docs/authoring-question-sets.md): how to write, test and iterate a question set, and the failure modes that make one look fine and measure nothing.
+- [docs/worked-example.md](https://github.com/johnlam1968/arxiv-relevance-watch/blob/main/docs/worked-example.md): a complete set, the hand-labelled battery that calibrated it, and what the battery caught.
+
+## Output
+
+- [examples/sample-report.md](https://github.com/johnlam1968/arxiv-relevance-watch/blob/main/examples/sample-report.md): what a real run produces.
+
+## Optional
+
+- [src/vendor/PROVENANCE.md](https://github.com/johnlam1968/arxiv-relevance-watch/blob/main/src/vendor/PROVENANCE.md): the three files copied from another MIT project, and from where.
+- [LICENSE](https://github.com/johnlam1968/arxiv-relevance-watch/blob/main/LICENSE): MIT.

@@ -15,6 +15,40 @@ reason to click — that is all, and it is deliberate.
 
 ---
 
+## Asking an AI assistant about this repo?
+
+Most people meet this project by pasting it into ChatGPT or Claude. That works, with one caveat worth
+stating up front: **a web assistant cannot run any of this** — no shell, no Node, no API key. It can
+read the repository and it can write your config files, and those are the two things that need the
+back-and-forth.
+
+Paste this, filling in the blanks:
+
+```
+Read https://github.com/johnlam1968/arxiv-relevance-watch — start with AGENTS.md,
+then docs/config-reference.md.
+
+My topic is: <one sentence, as narrow as you can make it>
+What my work still doesn't have: <5–10 specific gaps>
+
+Then tell me:
+  1. whether this tool actually fits my situation, and if not, what would,
+  2. the two config files you would write for me, checked against the reference,
+  3. the exact commands I would run,
+  4. and what you cannot do for me.
+```
+
+Question 4 is the important one. A general assistant asked to "run this on my topic" will be tempted
+to produce a plausible-looking ranked list of papers instead — which is exactly the output this tool
+exists to make *reproducible*, and the one thing a plausible fabrication can imitate perfectly. The
+repository tells assistants not to do that in [`AGENTS.md`](AGENTS.md) §3.
+
+**If you are an AI assistant**, read [`AGENTS.md`](AGENTS.md) — it covers what this does, what it
+cannot do, how to decide whether it fits, and how to help someone who cannot run it. A short machine
+index is at [`llms.txt`](llms.txt); local harnesses can start from [`CLAUDE.md`](CLAUDE.md).
+
+---
+
 ## The two workflows
 
 They answer different questions, read different things, and get their questions from different places.

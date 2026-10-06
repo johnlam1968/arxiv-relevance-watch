@@ -1,0 +1,3 @@
+Read AGENTS.md first. This tool calls no chat model (judgement is a System One / Jev decision model
+answering typed questions), and an assistant that cannot execute it must not fabricate its output —
+see AGENTS.md §3. Config schemas: docs/config-reference.md.

@@ -22,6 +22,10 @@
     "src",
     "config",
     "docs",
+    "examples",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "llms.txt",
     "README.md",
     "LICENSE"
   ],
