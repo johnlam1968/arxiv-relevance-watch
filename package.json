@@ -1,18 +1,22 @@
 {
   "name": "arxiv-relevance-watch",
   "version": "0.1.0",
-  "description": "Watch arXiv for the papers that matter to one specific research topic, and rank them with a decision model. No language model is called.",
+  "description": "Two workflows for one research topic: screen arXiv on abstracts, then read the shortlist in full text against the project's open items. No language model is called.",
   "type": "module",
   "license": "MIT",
   "bin": {
-    "arxiv-watch": "./src/cli.mjs"
+    "arxiv-watch": "./src/cli.mjs",
+    "arxiv-read": "./src/read.mjs"
   },
   "exports": {
     ".": "./src/cli.mjs",
+    "./read": "./src/read.mjs",
     "./arxiv": "./src/arxiv.mjs",
     "./topics": "./src/topics.mjs",
     "./state": "./src/state.mjs",
-    "./systemone": "./src/systemone.mjs"
+    "./systemone": "./src/systemone.mjs",
+    "./fulltext": "./src/fulltext.mjs",
+    "./project": "./src/project.mjs"
   },
   "files": [
     "src",
@@ -23,7 +27,8 @@
   ],
   "scripts": {
     "start": "node src/cli.mjs",
-    "test": "node --test"
+    "test": "node --test",
+    "read": "node src/read.mjs"
   },
   "engines": {
     "node": ">=22.5.0"

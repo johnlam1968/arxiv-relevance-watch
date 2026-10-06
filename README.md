@@ -1,13 +1,13 @@
 # arxiv-relevance-watch
 
-Finds the arXiv papers that matter to **one specific research topic**, ranks them, and keeps doing it
-on a schedule. Built for a narrow subject — monodromy defects in quantum field theory — and meant to
-be re-pointed at yours by editing two JSON files.
+Finds the arXiv papers that matter to **one specific research topic**, ranks them, and then helps you
+**read** them. Built for a narrow subject — monodromy defects in quantum field theory — and meant to
+be re-pointed at yours by editing three JSON files.
 
 **No language model is called.** There is no summarisation, no chat, and no generated prose anywhere
-in this tool. The only model involved is a *decision model*: it is handed a paper's title and
-abstract and a fixed set of typed questions, and it returns a probability per question. Everything
-else is deterministic code and the arXiv API.
+in this tool. The only model involved is a *decision model*: it is handed a document and a fixed set
+of typed questions, and it returns a probability per question. Everything else is deterministic code
+and the arXiv API.
 
 What that buys you: **the same paper gets the same score every time, and you can read exactly why.**
 What it costs you: the tool will not tell you what a paper says. It gives you links, numbers, and a
@@ -15,18 +15,44 @@ reason to click — that is all, and it is deliberate.
 
 ---
 
+## The two workflows
+
+They answer different questions, read different things, and get their questions from different places.
+
+| | **`arxiv-watch`** — screen | **`arxiv-read`** — read |
+|---|---|---|
+| subject | every paper a query returns | the shortlist |
+| reads | the **abstract** | the **full text** |
+| questions come from | the **field** — what makes a paper relevant here? | **your project** — what does this work still lack? |
+| answers | a rank and a gate | a **coverage matrix**: which of your open items each paper closes |
+| output | *"these 14 of 88 are worth a look"* | *"these 4 papers close 6 of your 10 open items; these 4 are still open"* |
+| cost | ~$0.004 for 88 papers | ~$0.0003 per paper |
+
+Screen first because it is cheap and reading is not; then read the survivors. The handoff is one flag:
+
+```bash
+arxiv-watch --watch --max 20                    # screen
+arxiv-read --from-screen reports/my-topic.json  # read everything it selected
+```
+
 ## Quick start
 
 ```bash
 git clone https://github.com/johnlam1968/arxiv-relevance-watch
 cd arxiv-relevance-watch
 
-# 1. See what it finds, spending nothing and calling no model.
+# STAGE 1 — screen. See what the queries find, spending nothing and calling no model.
 node src/cli.mjs --dry-run
 
-# 2. Score the results. Needs a decision-service key.
+# STAGE 1 — score the results. Needs a decision-service key.
 export OPENROUTER_API_KEY=sk-or-...
 node src/cli.mjs
+
+# STAGE 2 — read the ones that survived, against your project's open items.
+node src/read.mjs --from-screen reports/monodromy-defects-in-quantum-field-theory.json
+
+# STAGE 2 — what has been read so far, and what is still uncovered. No model needed.
+node src/read.mjs --matrix
 ```
 
 Requires **Node 22.5 or newer** and has **no dependencies** — `npm install` is not needed.
@@ -120,6 +146,75 @@ maintains this instrument, and it is the part of this project most worth reading
 
 ---
 
+## Reading a paper in depth
+
+`config/project-*.json` is the axis source for stage 2, and it is the file you edit most:
+
+```jsonc
+{
+  "name": "monodromy defects in quantum field theory",
+  "revision": "open-items@1",          // bump this when the list below changes
+
+  // Prose. Goes into the judged state verbatim. Write it for someone who has not read your notes,
+  // and keep it narrow.
+  "context": "Working notes on ... Setting: a free massless complex scalar field in 3 dimensions ...",
+
+  // EACH ITEM IS BOTH ONE QUESTION AND ONE COLUMN OF THE MATRIX.
+  "open_items": [
+    { "id": "covers_flat_space_per_unit_length",
+      "label": "flat-space energy per unit length",
+      "question": "Does PAPER give the Casimir energy of a line defect in FLAT space as an energy per unit length along the defect?" }
+  ],
+
+  // Everything that is not a coverage question: provenance, calibration controls, an overall score.
+  "questions": [ /* ... */ ]
+}
+```
+
+Three things follow from putting the open items in a file:
+
+**The matrix is the output, not a single number.** One paper is one row. What you act on is which
+columns are still empty:
+
+```
+open item                           best  best paper
+an explicit defect free energy      0.91  2104.09419
+the d=3 case                        0.94  2104.09419
+flat-space energy per unit length   0.11  2104.09419   <- still open
+the cusp                            0.54  2108.05107
+defect operator dimensions          0.92  1310.5078
+gauge vs background field           0.19  2108.05107   <- still open
+backreaction                        0.15  1310.5078   <- still open
+
+6/10 open item(s) addressed by at least one paper
+```
+
+**Your next search is written by the empty columns.** Four papers in, `gauge vs background field` is
+still at 0.19 across all of them — that is a fact about the literature relative to your project, and
+it tells you what to go looking for.
+
+**The set evolves, and revisioning keeps it honest.** When a paper closes an item, delete the item
+from `open_items` and bump `revision`. Reads are recorded per revision, so a paper read against
+`@1` and again against `@2` is not mistaken for a duplicate — it answered *different questions*, and
+collapsing the two would mix two instruments into one table.
+
+### Full text, and why a degraded read is reported
+
+Stage 2 fetches the **full text** from [ar5iv](https://ar5iv.labs.arxiv.org) (arXiv's HTML render).
+Not every paper has one. When it is missing, the read falls back to the abstract — and **says so**,
+because judging a paper's coverage from an abstract asks a document to answer questions it mostly
+does not address, and a confident low probability would then read as a finding about the paper when
+it is a fact about the fetch. Use `--require-fulltext` to skip those papers entirely rather than
+degrade them. In a test run, 2 of 5 papers had no ar5iv render.
+
+ar5iv's mathematics is partly garbled by the HTML conversion, and the built state says so, so the
+judge knows not to answer a question that turns on an equation.
+
+### The handoff
+
+`--from-screen <report.json>` takes exactly the papers that cleared **both** gates in a screening
+report. That is the whole pipeline: screen everything, read the survivors.
+
 ## Running it on a schedule
 
 ```bash
@@ -181,13 +276,17 @@ papers on the topic this ships with; see
 ## Layout
 
 ```
-src/cli.mjs          the command
-src/arxiv.mjs        the arXiv API client
+src/cli.mjs          arxiv-watch — STAGE 1, screen abstracts
+src/read.mjs         arxiv-read  — STAGE 2, read full texts against the project's open items
 src/topics.mjs       lexicon -> topics -> queries
+src/project.mjs      the project spec -> the depth question set -> the coverage matrix
+src/arxiv.mjs        the arXiv API client
+src/fulltext.mjs     ar5iv full text, with a loud degraded fallback to the abstract
 src/systemone.mjs    the decision-model client
-src/state.mjs        the seen-state (SQLite)
+src/state.mjs        the screening seen-state (SQLite)
+src/read-state.mjs   the reading matrix, keyed by paper AND set revision (SQLite)
 src/vendor/          three small MIT files, vendored -- see PROVENANCE.md
-config/              your topic and your question set: the two files you edit
+config/              topics (stage 1) · questions (stage 1) · project + open items (stage 2)
 docs/                how to author question sets, and a worked example
 ```
 

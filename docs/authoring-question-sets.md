@@ -1,7 +1,7 @@
 # Authoring question sets
 
-*For whoever maintains the instrument in `config/questions-*.json`. You do not need to read any
-code to write a valid set.*
+*For whoever maintains the instruments in `config/questions-*.json` (screening) and
+`config/project-*.json` (reading). You do not need to read any code to write a valid set.*
 
 A **question set** is several typed questions asked together about one subject, whose answers are
 probabilities. It is an **instrument**: you build it to measure something specific about a stream of
@@ -31,7 +31,7 @@ decides the rest.
     "instructions": "Is PAPER about monodromy (twist) defects in quantum field theory?" },
 
   { "id": "overlap", "type": "score",
-    "instructions": "How much of PAPER's subject matter overlaps the TOPIC PROFILE?",
+    "instructions": "How much of PAPER's subject matter overlaps the CONVERSATION TOPICS?",
     "levels": ["none: unrelated", "peripheral: same field, other problem",
                "adjacent: shares machinery", "relevant: same class of problem",
                "direct: the very topics in the conversation"] },
@@ -64,6 +64,54 @@ Rules that hold for all three:
 * **Never put the answer in the question.** "Is this excellent paper relevant?" invites agreement.
 * Option labels for `choice` are what you read back; make them short, and make the criteria
   mutually exclusive and jointly covering.
+
+## Two kinds of set, and where their axes come from
+
+Before writing anything, decide which kind of instrument you are building. They differ in **where the
+axes come from**, and getting that wrong is the most common way to produce a set that runs cleanly and
+answers nothing.
+
+| | **screening** set | **reading** (depth) set |
+|---|---|---|
+| subject | many papers, **abstracts** | one or a few papers, **full text** |
+| axis source | **the field** — what makes a paper relevant to this area? | **the project** — what does *this* piece of work still lack? |
+| question shape | "is this about X?", "how much does it overlap?" | "does this paper contain Y?", one per open item |
+| answer | a rank and a gate → a shortlist | a coverage matrix → which gaps are still open |
+| how it changes | rarely; the field is stable | **every time an item closes** |
+| typical size | 5–10 questions | one per open item + a few provenance questions |
+
+**The axis source for a reading set is a specification, not a description.** A working document that
+enumerates its own gaps — a notes file, a draft's TODO list, a grant's open questions, an incident
+review's unresolved items — has already written your axes for you. Extract them **verbatim**; do not
+paraphrase them into adjectives. "The cusp is unaddressed" becomes *"Does PAPER discuss non-analytic
+behaviour in the defect's flux parameter?"* — checkable — and not *"Is PAPER useful for the cusp?"*,
+which is not.
+
+Four rules that follow, and that a screening set does not need:
+
+1. **One open item, one question, one matrix column.** The item's `id` should be the question's `id`,
+   so the matrix and the set cannot drift apart.
+2. **Split compound items.** "Compute the energy" may be two axes — *any* such expression, and
+   specifically the flat-space per-unit-length one. One question would return ~0.5 and tell you
+   nothing; split, they separate cleanly.
+3. **Keep the set in a file that gets a revision, and record which revision answered.** A paper read
+   against `@1` and again against `@2` answered *different* questions. Collapsing them mixes two
+   instruments into one table.
+4. **Report the matrix, never a single number.** One paper is one row and says little. The output that
+   matters is which columns are still empty — that is what tells you what to search for next.
+
+**The evolution loop is the point.** Read papers → some items close → delete those items from the
+spec and bump the revision → the set is now measuring the remaining gaps. A reading set that never
+changes is either a project that is finished or one that is not being read.
+
+**A reading set needs full text, and its absence must be loud.** Judging a paper's coverage from an
+abstract asks a document to answer questions it mostly does not address, and a confident low
+probability then reads as a finding about the paper when it is a fact about the fetch. Mark such a
+read degraded, say so, and do not let it into the matrix unlabelled.
+
+**And for a single subject there is no battery** — so embed the calibration in the set: two or three
+questions whose answers you already know from having read the document yourself. If they come back
+wrong, discard the whole reading. (See *Checks before you trust a set*, check 7.)
 
 ## Choosing the primitive
 
@@ -172,6 +220,12 @@ Run these in order. They are cheap and each one catches a different way of being
 6. **Read the disagreements between questions.** One question saying "directly on topic" while
    another says "unrelated word overlap" is not noise — it is a subject that sits on a boundary you
    have not defined yet. Those cases are the raw material for the next revision.
+7. **For a single-subject (reading) set, check the embedded controls first.** A battery needs many
+   subjects; one paper cannot be one. So put the calibration *inside* the set — two or three questions
+   whose answers you already know from reading the document yourself ("is it about a monodromy
+   defect?", "is it set on a sphere?"). If those come back wrong, the rest of the reading is void, and
+   you know it before acting on any of it. This is the only check available when n = 1, and it is
+   strictly better than reading the answers with no calibration at all.
 
 ## Failure modes
 
@@ -195,12 +249,12 @@ other. That is how a real false positive was caught in the worked example.
 A set is data, so running it is a call with two parts: the **subject** (the text being judged) and
 the **question set**. Compose the subject so it contains everything the questions refer to — in the
 worked example the subject carries both the conversation's topic profile and the paper's title and
-abstract, because the questions mention both `TOPIC PROFILE` and `PAPER`.
+abstract, because the questions mention both `CONVERSATION TOPICS` and `PAPER`.
 
-In this tool, the set is `config/questions-*.json`. `src/cli.mjs` reads it, converts it to the shape
-the service expects, and asks it about one paper at a time. The wire contract underneath is a POST
-carrying the model, the state, and the questions keyed by `id`; the reply carries an answer per `id`.
-`src/systemone.mjs` is the whole of that conversion, if you want to see exactly what is sent.
+In this tool, the screening set is `config/questions-*.json` and the reading set is COMPOSED from
+`config/project-*.json` — its `open_items` become the coverage questions. `src/systemone.mjs` is the
+whole of the conversion and the call, if you want to see exactly what is sent; the wire contract is a
+POST carrying the model, the state, and the questions keyed by `id`.
 
 Read each answer by its type — `noul` gives a probability, `score` gives the expected level and its
 distribution over `levels`, `choice` gives a label and the distribution over option labels. **A
@@ -208,6 +262,7 @@ distribution over `levels`, `choice` gives a label and the distribution over opt
 
 ## Worked example
 
-[`worked-example.md`](worked-example.md) holds a complete five-question set for "is this arXiv paper
-relevant to these physics notes", the battery that calibrated it, the failures that were caught, and
-the gate that replaced averaging.
+[`worked-example.md`](worked-example.md) holds a complete five-question SCREENING set for "is this
+arXiv paper relevant to these physics notes", the battery that calibrated it, the failures that were
+caught, and the gate that replaced averaging. The READING set built from the same project is in
+`config/project-monodromy-defects.json`, and the two-workflow pipeline is described in the README.
