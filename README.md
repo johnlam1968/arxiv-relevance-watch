@@ -18,9 +18,11 @@ reason to click — that is all, and it is deliberate.
 ## Asking an AI assistant about this repo?
 
 Most people meet this project by pasting it into ChatGPT or Claude. That works, with one caveat worth
-stating up front: **a web assistant cannot run any of this** — no shell, no Node, no API key. It can
-read the repository and it can write your config files, and those are the two things that need the
-back-and-forth.
+stating precisely, because the obvious guess is wrong: a ChatGPT container **does** have bash and
+Node.js. What it does not have is **general outbound network access** — so none of this tool's three
+network calls can be made from it, and the repository cannot be cloned there either. What an assistant
+*can* do is read the repo, write your config files, and — if you upload the source as a zip — run the
+test suite, which needs no network at all.
 
 Paste this, filling in the blanks:
 
@@ -41,7 +43,9 @@ Then tell me:
 Question 4 is the important one. A general assistant asked to "run this on my topic" will be tempted
 to produce a plausible-looking ranked list of papers instead — which is exactly the output this tool
 exists to make *reproducible*, and the one thing a plausible fabrication can imitate perfectly. The
-repository tells assistants not to do that in [`AGENTS.md`](AGENTS.md) §3.
+same goes for answering the question set in its own words: that is a chat model's reading, not this
+tool's output, and it should be labelled as such. The repository tells assistants both of these in
+[`AGENTS.md`](AGENTS.md) §3 and §6.
 
 **If you are an AI assistant**, read [`AGENTS.md`](AGENTS.md) — it covers what this does, what it
 cannot do, how to decide whether it fits, and how to help someone who cannot run it. A short machine

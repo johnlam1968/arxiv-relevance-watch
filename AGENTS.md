@@ -32,8 +32,10 @@ closes.
   a topic, from its text. It is not a referee.
 * **The scores are not calibrated probabilities.** A rank of 0.9 means "ranks above the others in this
   run", not "90% likely to be useful". It is for ordering, not for deciding.
-* **You cannot run it.** If you are a web assistant you have no shell. See §6 — this is the normal
-  case and it still leaves you the most valuable part of the work.
+* **You probably cannot run the pipeline — but not for the reason you would guess.** A ChatGPT
+  container *does* give you bash and Node 22. What it does not give you is **general outbound network
+  access**, and every stage of this tool needs it. §6 has the measured boundary and the two things you
+  genuinely can run.
 
 ## 3. The rule that matters most: do not fabricate its output
 
@@ -81,29 +83,105 @@ Ask the person these, in roughly this order. Their answers decide the recommenda
    endpoint)?"** The scoring needs one. Without it, only `--dry-run` works, which shows what the
    queries find but scores nothing.
 
-## 6. If they cannot run it — your most useful contribution
+## 6. What a cloud sandbox can actually do — measured, not assumed
 
-**The authoring is the work a web assistant can actually do, and it is the part that needs the
-back-and-forth.** The tool is only as good as two text files, and both are written in conversation:
+If you are a ChatGPT web assistant you are **not** shell-less. Since early 2026 the container has
+**bash** and **Node.js** (measured v22.16.0 with npm 10.9.2 — that satisfies this tool's
+`>=22.5.0`), plus package managers working through internal mirrors. So the honest boundary is not
+"I have no computer". It is this:
+
+| what the tool needs | available in a ChatGPT container? | why |
+|---|---|---|
+| bash, Node 22 | **yes** | the container has them |
+| `npm install` | yes, and pointless | this repository has **no dependencies** |
+| `git clone` from GitHub | **no** | GitHub is unreachable; archive downloads redirect to `codeload.github.com`, which is blocked |
+| `fetch()` to `export.arxiv.org` | **no** | general outbound networking from user code is blocked — `Network is unreachable` |
+| `fetch()` to `ar5iv.labs.arxiv.org` | **no** | same |
+| `POST` to a decision service | **no** | same |
+| `container.download(url)` | partly | a privileged fetch that reaches *some* public URLs, restricted to URLs already seen in the conversation |
+| your own browser / search tool | **yes** | a separate tool with real internet access |
+
+The container's network policy is **packages-only** — package registries are proxied, everything else
+is not. So the pipeline cannot run: **all three of its network calls fail**, and the repository cannot
+be cloned. Those are the blockers. Not the absence of a shell.
+
+### Two things you genuinely can do
+
+**1. Verify the code, if the human uploads it.** Ask them to upload the repository as a zip, then:
+
+```bash
+unzip -q arxiv-relevance-watch-main.zip && cd arxiv-relevance-watch-main
+node --test
+```
+
+The **26 tests need no network** — verified by running them with the network namespace removed
+(`unshare -n`), where all 26 still pass. That is a real, checkable answer to "does this work?", and
+worth more than any description of it. It is also the strongest thing you can offer someone who is
+deciding whether to trust the repository.
+
+**2. Do the retrieval half with your browser tool, and stop at the judgement half.** You can use your
+web tool to open an arXiv API URL, save the Atom XML, and run the *offline* parts of this repository
+over it — `parseAtom`, the query builder, the state composition. What you cannot do is call the
+decision service, because that is an authenticated `POST` to a domain the container cannot reach.
+
+### And you must not substitute yourself for the decision model
+
+Reading the question set and answering it in your own words is **not** this tool's output. It is a
+different instrument: a chat model, with no probability distribution, no fixed set revision, and no
+reproducibility. `parseAtom` and a chat model's opinion are not the same kind of thing.
+
+If the human wants that as a stopgap, fine — but label it plainly as **your reading, not the tool's**,
+do not render it in the tool's format (no `0.87`, no coverage matrix, no `rank` column), and say what
+was skipped. §3 is this rule with the reasoning.
+
+### The authoring is still your most useful contribution
+
+The tool is only as good as two text files, and both are written in conversation — so this is the work
+that needs a human in the loop, and it is mostly unaffected by the sandbox:
 
 | file | what it holds | where the content comes from |
 |---|---|---|
 | `config/topics-*.json` | the vocabulary of their subject, and the search queries built from it | their own description of what they work on |
-| `config/project-*.json` | their open items — one question per gap | their answer to question 2 above |
+| `config/project-*.json` | their open items — one question per gap | their answer to question 2 in §5 |
 
 Read [docs/config-reference.md](docs/config-reference.md), which gives both schemas in prose with the
-validation rules, so you can write a valid file without running anything. Then work like this:
+validation rules, so you can write a valid file without running anything. Then:
 
 1. **Interview them** using §5. Get the subject narrow and get the gaps listed.
 2. **Write both JSON files** and give them to the person to save.
 3. **Check your own work against [the config reference](docs/config-reference.md)** — every required
-   field, every rule. This is the one quality gate you have without a shell; use it.
+   field, every rule. That document is the one quality gate you have without a network; use it.
 4. **Hand over the exact commands**, with their filenames substituted in. Do not paraphrase them.
-5. **Tell them what to expect**, including that papers without an ar5iv full-text render get read
-   from the abstract and flagged, and that the first run costs almost nothing.
+5. **Tell them what to expect**, including that papers without an ar5iv render get read from the
+   abstract and flagged, and that the first run costs almost nothing.
 
 Do not guess at the config formats. They are documented, and a config that fails validation stops the
-run with a specific message.
+run with a message naming the field.
+
+### One practical note about this repository
+
+It is currently **private**. A web assistant cannot fetch a private repository at all, so if someone
+pastes the URL and expects you to have read it, you have not — say so and ask them to upload the zip
+or paste the files. ([llms.txt](llms.txt) and the `docs/` files are the ones worth pasting.)
+
+### If they are using Codex Cloud instead
+
+Codex Cloud gives the agent a real environment with the repository checked out and can open pull
+requests — a different situation from a chat container. But **agent-phase internet access is blocked
+by default**; setup scripts run with internet, the agent does not. It can be enabled per environment,
+with a domain allowlist and an HTTP-method restriction. Note the interaction: if you restrict methods
+to `GET`/`HEAD`/`OPTIONS` for safety, the decision-model call is a `POST` and will be blocked. This
+tool needs `export.arxiv.org`, `ar5iv.labs.arxiv.org`, and the decision-service host.
+
+<sub>Sandbox claims above were checked **2026-10-06** against
+[Simon Willison's container measurements](https://simonwillison.net/2026/Jan/26/chatgpt-containers/)
+and the [container-environment report](https://github.com/simonw/research/tree/main/chatgpt-container-environment)
+(both January 2026), and against OpenAI's
+[Codex Cloud internet-access documentation](https://learn.chatgpt.com/docs/cloud/internet-access).
+**Platform capabilities change faster than repositories do** — if you are reading this long after that
+date, re-check rather than repeating it, and say when you checked. The `npm test` claim is different in
+kind: it is a property of *this* code, verified here with the network namespace removed, and it stays
+true as long as the tests do.</sub>
 
 ## 7. If they can run it — the guide to give them
 
@@ -125,8 +203,9 @@ Set `ARXIV_USER_AGENT` to something carrying their contact address — arXiv ask
 
 Point at evidence rather than asserting quality:
 
-* **21 tests**, runnable with `npm test` — covering the parsing and the reply-reading, including two
-  real bugs found and pinned by a test.
+* **26 tests**, runnable with `npm test`, and **verified to need no network** (they pass with the
+  network namespace removed) — covering the parsing, the reply-reading, the config composition and the
+  coverage matrix, including real bugs found and pinned by a test.
 * **The question-set design is documented**, with its failure modes:
   [docs/authoring-question-sets.md](docs/authoring-question-sets.md).
 * **A measured record of what did not work**: a ten-question "improved" set that scored *worse* than
