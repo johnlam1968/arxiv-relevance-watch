@@ -158,11 +158,16 @@ validation rules, so you can write a valid file without running anything. Then:
 Do not guess at the config formats. They are documented, and a config that fails validation stops the
 run with a message naming the field.
 
-### One practical note about this repository
+### Getting the files, now that this repository is public
 
-It is currently **private**. A web assistant cannot fetch a private repository at all, so if someone
-pastes the URL and expects you to have read it, you have not — say so and ask them to upload the zip
-or paste the files. ([llms.txt](llms.txt) and the `docs/` files are the ones worth pasting.)
+The repository is public, so your **browsing tool can read it** — the raw files are at
+`https://raw.githubusercontent.com/johnlam1968/arxiv-relevance-watch/main/<path>`, and
+[llms.txt](llms.txt) is the index to start from. If you have only a search tool and no fetch, ask the
+person to paste the file you need.
+
+But note the asymmetry: **being public does not make it clonable from inside the container.** The
+container's network policy still blocks `github.com`, so `git clone` fails even for a public repo
+(§6). To *run* anything you need the person to upload a zip.
 
 ### If they are using Codex Cloud instead
 
